@@ -18,7 +18,8 @@
 # Green --- Done
 ATTACKMODE HID
 
-Q SET_LANGUAGE de
+# set lang not needed
+#Q SET_LANGUAGE de
 
 # Create registry keys
 LED B
